@@ -87,7 +87,7 @@ jobs:
           echo "WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt)" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
-          #echo "WRT_MODS=none" >> $GITHUB_ENV
+          echo "WRT_MODS=none" >> $GITHUB_ENV
 
       - name: Clone Code
         run: |
@@ -197,21 +197,25 @@ jobs:
 
       - name: Package Firmware
         run: |
-          cd ./wrt/ && mkdir ./upload/
+          cd ./wrt/ && mkdir -p ./upload/
 
-          cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
+          cp -f ./.config ./upload/Config-"${WRT_CONFIG}"-"${WRT_INFO}"-"${WRT_BRANCH}"-"${WRT_DATE}".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
-            echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
-            echo "WRT_LIST=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^luci-(app|theme)[^ ]*' {} \; | tr '\n' ' ')" >> $GITHUB_ENV
+            echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \; | head -1)" >> $GITHUB_ENV
+            echo "WRT_LIST=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^luci-(app|theme)[^ ]*' {} \; | sort -u | tr '\n' ' ')" >> $GITHUB_ENV
             # 获取已编译固件（CONFIG_PACKAGE_xxx=m）
             echo "WRT_MODS=$(grep '^CONFIG_PACKAGE_luci-\(app\|theme\)[^=]*=m$' ./.config | sed 's/^CONFIG_PACKAGE_//g; s/=m$//g' | sort | tr '\n' ' ')" >> $GITHUB_ENV
 
-                # 打包整个 bin 目录（包含 targets 和 packages）
-                [ -d ./bin/ ] && tar -czf ./upload/openwrt-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".tar.gz -C . bin/
-                
-                # 单独提取主要固件文件便于直接使用
-                find ./bin/targets/ -type f \( -name "*.img.gz" -o -name "*.bin" \) -exec cp {} ./upload/ \;
+            # 删除无用文件
+            find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\)$" -exec rm -rf {} +
+            find ./bin/targets/ -iregex ".*\(squashfs-recovery\|initramfs-uImage\).*" -exec rm -rf {} +
+
+            # 移动固件文件到 upload 目录
+            find ./bin/targets/ -type f \( -name "*.img.gz" -o -name "*.bin" \) -exec cp {} ./upload/ \;
+
+            # 打包整个 bin 目录（包含 targets 和 packages）
+            [ -d ./bin/ ] && tar -czf ./upload/openwrt-"${WRT_INFO}"-"${WRT_BRANCH}"-"${WRT_DATE}".tar.gz -C . bin/
 
             make clean -j$(nproc)
           fi
