@@ -14,11 +14,15 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Build by bluehj $WRT_DATE_SHORT)/
 
 #修改Argon主题footer
 ARGON_HTM_FILES=$(find . -path "*/luci-theme-argon/*" -name "*.htm" -type f)
-if [ -n "$ARGON_HTM_FILES" ]; then    
-    # 一步完成替换：隐藏原内容，显示新内容
-    sed -i 's|<a class="luci-link" href="https://github.com/openwrt/luci">Powered by <%= ver\.luciname %> (<%= ver\.luciversion %>)</a> /[[:space:]]*<%= ver\.distversion %>|Powered by ImmortalWrt SNAPSHOT Build by bluehj '"$WRT_DATE_SHORT"'|g' $ARGON_HTM_FILES    
+if [ -n "$ARGON_HTM_FILES" ]; then
+    for HTM_FILE in $ARGON_HTM_FILES; do
+        # 替换包含 Powered by 的多行内容
+        sed -i '/<a class="luci-link".*Powered by.*<\/a>/,/<%= ver\.distversion %>/c\
+\t\tPowered by ImmortalWrt / Build by bluehj '"$WRT_DATE_SHORT" "$HTM_FILE" 2>/dev/null
+    done
     echo "Argon theme footer has been modified!"
 fi
+
 CFG_FILE="./package/base-files/files/bin/config_generate"
 
 #修改默认IP地址
