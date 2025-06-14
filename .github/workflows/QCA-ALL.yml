@@ -32,24 +32,28 @@ permissions: write-all
 #CI任务
 jobs:
   config:
-    name: ${{matrix.CONFIG}}
+    name: ${{matrix.TARGET}}
     strategy:
       fail-fast: false
       #max-parallel: 3
       matrix:
         CONFIG: [IPQ60XX-WIFI-NO]
-        SOURCE: [VIKINGYFY/immortalwrt]
+        REPO_INFO:
+          - {SOURCE: VIKINGYFY/immortalwrt, BRANCH: main, NAME: OWRT, SUFFIX: IMM, USEAPK: 'true'}
+          - {SOURCE: VIKINGYFY/immortalwrt, BRANCH: main, NAME: OWRT, SUFFIX: IMM, USEAPK: 'false'}
         BRANCH: [main]
 
     #调用公用编译核心WRT-CORE.yml
     uses: ./.github/workflows/WRT-CORE.yml
     with:
+      #编译平台
+      WRT_TARGET: ${{matrix.TARGET}}
       #编译配置
       WRT_CONFIG: ${{matrix.CONFIG}}
       #默认主题
       WRT_THEME: argon
       #默认主机名
-      WRT_NAME: HWRT
+      WRT_NAME: ${{matrix.REPO_INFO.NAME}}
       #默认地址
       WRT_IP: 192.168.88.1
       #默认密码，仅作提示，修改无用
@@ -57,12 +61,12 @@ jobs:
       #源码链接
       WRT_REPO: https://github.com/${{matrix.SOURCE}}.git
       #源码分支
-      WRT_BRANCH: ${{matrix.BRANCH}}
+      WRT_BRANCH: ${{matrix.REPO_INFO.BRANCH || 'main'}}
       #源码名称
-      WRT_SOURCE: ${{matrix.SOURCE}}
+      WRT_SOURCE: ${{matrix.REPO_INFO.SOURCE}}
       #插件调整
       WRT_PACKAGE: ${{inputs.PACKAGE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}
       #是否使用APK
-      WRT_USEAPK: ${{inputs.USEAPK}}                                   
+      WRT_USEAPK: ${{matrix.REPO_INFO.USEAPK || 'true'}}
