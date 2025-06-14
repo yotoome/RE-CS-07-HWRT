@@ -1,7 +1,7 @@
 # Immortalwrt-OpenWRT-CI
 云编译Immortalwrt固件
 
-本项目参考了[VIKINGYFY](https://github.com/VIKINGYFY/OpenWRT-CI) 和 [ftkey](https://github.com/ftkey/ER1-WRT-CI))的云编译项目。
+本项目参考了[VIKINGYFY](https://github.com/VIKINGYFY/OpenWRT-CI) 和 [ftkey](https://github.com/ftkey/ER1-WRT-CI)的云编译项目。
 
 源码使用VIKINGYFY的Immortalwrt高通版：
 https://github.com/VIKINGYFY/immortalwrt.git
