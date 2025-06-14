@@ -29,6 +29,7 @@ CONFIG_PACKAGE_luci-proto-vpnc=y
 CONFIG_PACKAGE_luci-proto-wireguard=m
 CONFIG_PACKAGE_luci-app-mosdns=y
 CONFIG_PACKAGE_luci-app-arpbind=y
+CONFIG_PACKAGE_luci-app-vlmcsd=m
 
 #删除插件
 CONFIG_PACKAGE_luci-app-wol=n
