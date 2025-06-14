@@ -29,6 +29,8 @@ DELETE_PACKAGE "qt6tools"
 DELETE_PACKAGE "rblibtorrent"
 DELETE_PACKAGE "luci-app-vlmcsd"
 DELETE_PACKAGE "vlmcsd"
+DELETE_PACKAGE "luci-app-alist"
+DELETE_PACKAGE "alist"
 
 #安装和更新软件包
 UPDATE_PACKAGE() {
@@ -86,7 +88,7 @@ UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 UPDATE_PACKAGE "luci-app-socat" "bluehj777/openwrt_pkgs" "main" "pkg"
 UPDATE_PACKAGE "luci-app-onliner" "bluehj777/openwrt_pkgs" "main" "pkg"
 UPDATE_PACKAGE "vlmcsd" "bluehj777/openwrt_pkgs" "main" "pkg"
-#UPDATE_PACKAGE "alist" "sbwml/luci-app-alist" "main"
+UPDATE_PACKAGE "alist" "bluehj777/openwrt_pkgs" "main" "pkg"
 #UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 #UPDATE_PACKAGE "easytier" "EasyTier/luci-app-easytier" "main"
 UPDATE_PACKAGE "gecoosac" "lwb1978/openwrt-gecoosac" "main"
