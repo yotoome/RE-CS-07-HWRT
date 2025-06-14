@@ -15,8 +15,7 @@ ARGON_HTM_FILES=$(find . -path "*/luci-theme-argon/*" -name "*.htm" -type f)
 if [ -n "$ARGON_HTM_FILES" ]; then
     for HTM_FILE in $ARGON_HTM_FILES; do
         # 替换包含 Powered by 的多行内容
-        sed -i '/<a class="luci-link".*Powered by.*<\/a>/,/<%= ver\.distversion %>/c\
-\t\tPowered by ImmortalWrt / Build by bluehj '"$WRT_DATE_SHORT" "$HTM_FILE" 2>/dev/null
+        sed -i '/<a class="luci-link".*Powered by.*<\/a>/,/<%= ver\.distversion %>/c\\t\tPowered by ImmortalWrt / Build by bluehj '"$WRT_DATE_SHORT" "$HTM_FILE" 2>/dev/null
     done
     echo "Argon theme footer has been modified!"
 fi
