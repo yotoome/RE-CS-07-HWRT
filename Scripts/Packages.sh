@@ -32,6 +32,9 @@ DELETE_PACKAGE "vlmcsd"
 DELETE_PACKAGE "luci-app-alist"
 DELETE_PACKAGE "alist"
 
+rm -rf feeds/packages/net/mosdns
+rm -rf feeds/luci/applications/luci-app-mosdns
+
 #安装和更新软件包
 UPDATE_PACKAGE() {
 	local PKG_NAME=$1
@@ -100,6 +103,8 @@ UPDATE_PACKAGE "qbittorrent" "sbwml/luci-app-qbittorrent" "master" "" "qt6base q
 #UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
 UPDATE_PACKAGE "viking" "VIKINGYFY/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 #UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
+
+git clone --depth=1 -b main https://github.com/fw876/helloworld package/luci-app-ssr-plus
 
 #更新软件包版本
 UPDATE_VERSION() {
