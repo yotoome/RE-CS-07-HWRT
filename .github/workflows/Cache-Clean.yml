@@ -1,7 +1,8 @@
 name: Cache-Clean
 
 on:
-  schedule:
+  schedule: 
+  #自动清理：每周一半夜2点执行
     - cron: 0 18 * * 0
   workflow_dispatch:
 
