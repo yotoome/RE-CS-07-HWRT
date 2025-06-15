@@ -5,3 +5,5 @@ src/gz immortalwrt_packages https://mirrors.pku.edu.cn/immortalwrt/releases/pack
 src/gz immortalwrt_routing https://mirrors.pku.edu.cn/immortalwrt/releases/packages-24.10/aarch64_cortex-a53/routing
 src/gz immortalwrt_telephony https://mirrors.pku.edu.cn/immortalwrt/releases/packages-24.10/aarch64_cortex-a53/telephony
 EOF
+# 注释掉 opkg.conf 中的签名检查选项
+sed -i 's/^option check_signature/#option check_signature/' /etc/opkg.conf
