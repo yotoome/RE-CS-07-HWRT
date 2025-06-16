@@ -223,9 +223,15 @@ jobs:
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\)$" -exec rm -rf {} +
             find ./bin/targets/ -iregex ".*\(squashfs-recovery\|initramfs-uImage\).*" -exec rm -rf {} +
 
-            # 移动固件文件到 upload 目录
-            find ./bin/targets/ -type f \( -name "*.img.gz" -o -name "*.bin" \) -exec cp {} ./upload/ \;
-
+            # 移动并重命名固件文件到 upload 目录
+            PKG_TYPE=$([[ $WRT_USEAPK == 'true' ]] && echo "apk" || echo "ipk")
+            find ./bin/targets/ -type f \( -name "*.img.gz" -o -name "*.bin" \) | while read -r FILE; do
+            BASENAME=$(basename "$FILE")
+            # 在 squashfs 后面插入包类型
+            NEWNAME=$(echo "$BASENAME" | sed "s/\(squashfs\)/\1-${PKG_TYPE}/")
+            cp "$FILE" "./upload/$NEWNAME"
+            done
+            
             # 打包整个 bin 目录（包含 targets 和 packages）
             [ -d ./bin/ ] && tar -czf ./upload/openwrt-"${WRT_INFO}"-"${WRT_BRANCH}"-"${WRT_DATE}".tar.gz -C . bin/
 
