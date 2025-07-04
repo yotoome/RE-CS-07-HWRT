@@ -41,6 +41,12 @@ CONFIG_PACKAGE_luci-app-nfs=m
 CONFIG_PACKAGE_luci-app-wrtbwmon=m
 CONFIG_PACKAGE_luci-app-lucky=m
 CONFIG_PACKAGE_luci-app-banip=m
+CONFIG_PACKAGE_luci-app-easytier=m
+CONFIG_PACKAGE_luci-app-ipsec-server=m
+CONFIG_PACKAGE_luci-app-ipsec-vpnd=m
+CONFIG_PACKAGE_luci-app-openclash=m
+CONFIG_PACKAGE_luci-app-passwall=m
+CONFIG_PACKAGE_luci-app-smartdns=m
 
 #删除插件
 CONFIG_PACKAGE_luci-app-wol=n
