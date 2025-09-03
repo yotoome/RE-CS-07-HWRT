@@ -34,9 +34,6 @@ on:
       WRT_TEST:
         required: false
         type: string
-      WRT_USEAPK:
-        required: false
-        type: string
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -50,7 +47,6 @@ env:
   WRT_SOURCE: ${{inputs.WRT_SOURCE}}
   WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
   WRT_TEST: ${{inputs.WRT_TEST}}
-  WRT_USEAPK: ${{inputs.WRT_USEAPK}}
 
 jobs:
   core:
@@ -59,18 +55,6 @@ jobs:
     steps:
       - name: Checkout Projects
         uses: actions/checkout@main
-
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # 以下是建议的配置，保留了编译可能需要的工具
-          android: true          # 删除 Android SDK (约 10GB)
-          dotnet: true          # 删除 .NET (约 2GB)
-          haskell: true         # 删除 Haskell (约 3GB)
-          large-packages: true   # 删除大型包 (约 5GB)
-          docker-images: true    # 删除 Docker 镜像 (约 5GB)
-          swap-storage: true     # 删除交换文件 (约 4GB)
-          tool-cache: false      # 保留工具缓存，可能包含需要的编译工具
 
       - name: Initialization Environment
         env:
@@ -192,9 +176,8 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
+          make -j$(nproc) || make -j$(nproc) V=s
 
-          # make -j$(nproc) || make -j$(nproc) V=s
-          make -j1 V=s || make -j1 V=s
       - name: Machine Information
         run: |
           cd ./wrt/
@@ -210,8 +193,7 @@ jobs:
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir -p ./upload/
-
-          cp -f ./.config ./upload/Config-"${WRT_CONFIG}"-"${WRT_INFO}"-"${WRT_BRANCH}"-"${WRT_DATE}".txt
+          cp -f ./.config ./upload/Config-"$WRT_CONFIG"-JDCloud_RE-CS-07-"$WRT_NAME"-"$WRT_DATE".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
             echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \; | head -1)" >> $GITHUB_ENV
@@ -219,35 +201,25 @@ jobs:
             # 获取已编译固件（CONFIG_PACKAGE_xxx=m）
             echo "WRT_MODS=$(grep '^CONFIG_PACKAGE_luci-\(app\|theme\)[^=]*=m$' ./.config | sed 's/^CONFIG_PACKAGE_//g; s/=m$//g' | sort | tr '\n' ' ')" >> $GITHUB_ENV
 
-            # 删除无用文件
-            find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\)$" -exec rm -rf {} +
-            find ./bin/targets/ -iregex ".*\(squashfs-recovery\|initramfs-uImage\).*" -exec rm -rf {} +
-
-            # 移动并重命名固件文件到 upload 目录
-            PKG_TYPE=$([[ $WRT_USEAPK == 'true' ]] && echo "apk" || echo "ipk")
-            find ./bin/targets/ -type f \( -name "*.img.gz" -o -name "*.bin" \) | while read -r FILE; do
-              BASENAME=$(basename "$FILE")
-              # 在 squashfs 后面插入包类型
-              NEWNAME=$(echo "$BASENAME" | sed "s/\(squashfs\)/\1-${PKG_TYPE}/")
-              cp "$FILE" "./upload/$NEWNAME"
+            # 复制固件文件（不包括packages子目录中的文件）
+            for FILE in ./bin/targets/*/*/*; do
+             [ -f "$FILE" ] && cp "$FILE" ./upload/
             done
-            
-            # 打包整个 bin 目录（包含 targets 和 packages）
-            [ -d ./bin/ ] && tar -czf ./upload/openwrt-"${WRT_INFO}"-"${WRT_BRANCH}"-"${WRT_DATE}".tar.gz -C . bin/
 
+            # 直接打包整个bin目录
+            [ -d ./bin/ ] && tar -czf ./upload/immortalwrt-"$WRT_CONFIG"-JDCloud_RE-CS-07-"$WRT_NAME"-"$WRT_DATE".tar.gz -C . bin/
             make clean -j$(nproc)
           fi
 
       - name: Release Firmware
         uses: softprops/action-gh-release@master
         with:
-          tag_name: ${{env.WRT_NAME}}-JDCloud_RE-CS-07-${{env.WRT_BRANCH}}-${{ env.WRT_USEAPK == 'true' && 'APK' || 'IPK' }}-R${{env.WRT_DATE}}
+          tag_name: Immortalwrt-${{env.WRT_CONFIG}}-JDCloud_RE-CS-07-${{env.WRT_NAME}}-${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-            这是个平台固件包针对京东云太乙路由器(RE-CS-07)设备！
-
-            全系带开源NSS硬件加速！
-
+            这是高通IPQ60X平台，京东云JDCloud RE-CS-07固件包！
+            带开源NSS硬件加速！
+            
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
             提交：${{env.WRT_HASH}}
@@ -258,11 +230,9 @@ jobs:
             登录地址：${{env.WRT_IP}}
             登录密码：${{env.WRT_PW}}
 
+            WIFI名称：${{env.WRT_SSID}}
+            WIFI密码：${{env.WRT_WORD}}
+
             内核版本：${{env.WRT_KVER}}
-            包管理器：${{ env.WRT_USEAPK == 'true' && 'APK' || 'IPK' }}
-
-            📦 **固件集成插件**：
-            ${{env.WRT_LIST}}
-
-            📦 **已编译未集成的插件**：
-            ${{env.WRT_MODS}}
+            固件已集成插件：${{env.WRT_LIST}}
+            已编译未集成的插件：${{env.WRT_MODS}}
