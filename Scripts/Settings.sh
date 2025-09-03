@@ -2,9 +2,10 @@
 
 #修改默认主题
 sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-
 #修改immortalwrt.lan关联IP
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
+##添加编译日期标识
+#sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
 #添加编译日期标识
 WRT_DATE_SHORT=$(echo $WRT_DATE | sed 's/\([0-9][0-9]\)\.\([0-9][0-9]\)\.\([0-9][0-9]\)-.*/20\1.\2.\3/')
@@ -20,16 +21,29 @@ if [ -n "$ARGON_HTM_FILES" ]; then
     echo "Argon theme footer has been modified!"
 fi
 
-CFG_FILE="./package/base-files/files/bin/config_generate"
+#WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
+#WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
+#if [ -f "$WIFI_SH" ]; then
+#	#修改WIFI名称
+#	sed -i "s/BASE_SSID='.*'/BASE_SSID='$WRT_SSID'/g" $WIFI_SH
+#	#修改WIFI密码
+#	sed -i "s/BASE_WORD='.*'/BASE_WORD='$WRT_WORD'/g" $WIFI_SH
+#elif [ -f "$WIFI_UC" ]; then
+#	#修改WIFI名称
+#	sed -i "s/ssid='.*'/ssid='$WRT_SSID'/g" $WIFI_UC
+#	#修改WIFI密码
+#	sed -i "s/key='.*'/key='$WRT_WORD'/g" $WIFI_UC
+#	#修改WIFI地区
+#	sed -i "s/country='.*'/country='CN'/g" $WIFI_UC
+#	#修改WIFI加密
+#	sed -i "s/encryption='.*'/encryption='psk2+ccmp'/g" $WIFI_UC
+#fi
 
+CFG_FILE="./package/base-files/files/bin/config_generate"
 #修改默认IP地址
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $CFG_FILE
-
 #修改默认主机名
 sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" $CFG_FILE
-
-#临时修复luci无法保存的问题
-sed -i "s/\[sid\]\.hasOwnProperty/\[sid\]\?\.hasOwnProperty/g" $(find ./feeds/luci/modules/luci-base/ -type f -name "uci.js")
 
 #配置文件修改
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
@@ -70,20 +84,11 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	fi
 fi
 
-# TTYD 免登录
-sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.config
-
-#编译器优化
-if [[ $WRT_TARGET == *"IPQ"* ]]; then
-	echo "CONFIG_TARGET_OPTIONS=y" >> ./.config
-	echo "CONFIG_TARGET_OPTIMIZATION=\"-O2 -pipe -march=armv8-a+crypto+crc -mcpu=cortex-a53+crypto+crc -mtune=cortex-a53\"" >> ./.config
-fi
-
 #IPK/APK包管理调整
-if [[ $WRT_USEAPK == 'true' ]]; then
-	echo "CONFIG_USE_APK=y" >> ./.config
-	echo "APK package management has been enabled!"
-else
+#if [[ $WRT_USEAPK == 'true' ]]; then
+#	echo "CONFIG_USE_APK=y" >> ./.config
+#	echo "APK package management has been enabled!"
+#else
 	echo "CONFIG_USE_APK=n" >> ./.config
 	echo "CONFIG_PACKAGE_default-settings-chn=y" >> ./.config
 	DEFAULT_CN_FILE=./package/emortal/default-settings/files/99-default-settings-chinese
@@ -93,4 +98,4 @@ else
 		echo "99-default-settings-chinese patch has been applied!"
 	fi
 	echo "IPK package management has been enabled!"
-fi
+#fi
