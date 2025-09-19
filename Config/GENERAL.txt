@@ -152,7 +152,6 @@ CONFIG_PACKAGE_usbutils=y
 
 #我添加的组件
 
-#CONFIG_PACKAGE_nftables=y
 #CONFIG_PACKAGE_kmod-nft-conntrack=y
 #CONFIG_PACKAGE_kmod-nft-limit=y
 #CONFIG_PACKAGE_kmod-nft-hash=y 
