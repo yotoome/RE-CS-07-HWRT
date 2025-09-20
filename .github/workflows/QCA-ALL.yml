@@ -20,16 +20,11 @@ on:
         default: 'false'
         required: false
         type: boolean
-      DBGSHELL:
-        description: 'Enable tmate shell for debug'
-        type: boolean
-        required: false
-        default: 'false'
       FIXNSS:
         description: 'Fix NSS Package Hash'
         type: boolean
         required: false
-        default: 'false'
+        default: 'true'
 #CI权限
 permissions: write-all
 
@@ -68,7 +63,5 @@ jobs:
       WRT_PACKAGE: ${{inputs.PACKAGE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}
-      #Debug Shell
-      DBGSHELL: ${{inputs.DBGSHELL}}
       #Fix NSS Package Hash
       WRT_FIXNSS: ${{inputs.FIXNSS}}
