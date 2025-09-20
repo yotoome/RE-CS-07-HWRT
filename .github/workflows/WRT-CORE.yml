@@ -34,9 +34,6 @@ on:
       WRT_TEST:
         required: false
         type: string
-      DBGSHELL:
-        required: false
-        type: boolean
       WRT_FIXNSS:
         required: false
         type: boolean
