@@ -173,11 +173,6 @@ jobs:
 
           make download -j$(nproc)
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ inputs.DBGSHELL }}
-        timeout-minutes: 10
-
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
