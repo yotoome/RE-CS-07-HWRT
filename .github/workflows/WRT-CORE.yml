@@ -177,8 +177,28 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          make -j$(nproc) || make -j$(nproc) V=s
-          #make -j1 || make -j1 V=s
+          
+          echo "=== System Resources Before Build ==="
+          df -h
+          free -h
+          
+          echo "=== Compiling Tools and Toolchain ==="
+          make tools/compile -j$(nproc) V=s
+          make toolchain/compile -j$(nproc) V=s
+          
+          echo "=== Compiling Target ==="
+          make target/compile -j$(nproc) V=s
+          
+          echo "=== Compiling Packages (Serial Mode) ==="
+          # 使用串行编译避免并行竞争问题
+          make package/compile -j1 V=s
+          
+          echo "=== Final Assembly ==="
+          make target/install -j$(nproc) V=s
+          make package/install -j$(nproc) V=s
+          make package/index V=s
+          
+          echo "=== Build Completed Successfully ==="
 
       - name: Machine Information
         run: |
